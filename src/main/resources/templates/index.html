@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Electric Power Calculator</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+  <body
+    class="min-h-screen bg-gradient-to-b from-blue-900 via-blue-800 to-indigo-900 text-white"
+  >
+    <div class="container mx-auto py-8 px-4">
+      <div class="max-w-5xl mx-auto py-8">
+        <!-- Header -->
+        <div class="text-center mb-8 animate__animated animate__fadeInDown">
+          <h1
+            class="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400 mb-2"
+          >
+            Electric Power Calculator
+          </h1>
+          <p class="text-blue-200 max-w-2xl mx-auto">
+            Track your energy consumption and estimate costs with our
+            interactive calculator
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <!-- Navigation -->
+          <div class="lg:col-span-1 animate__animated animate__fadeInLeft">
+            <div
+              class="bg-blue-950/50 border-blue-700 border rounded-lg backdrop-blur-md overflow-hidden"
+            >
+              <div class="flex flex-col">
+                <a
+                  th:href="@{/?view=input}"
+                  class="flex items-center gap-3 p-4 transition-all"
+                  th:classappend="${param.view == null || param.view[0] == 'input' ? 'bg-blue-700 text-white' : 'text-blue-300 hover:bg-blue-800/50'}"
+                >
+                  <div class="bg-blue-600 p-2 rounded-full">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      class="h-5 w-5"
+                    >
+                      <path d="M5 12.55a11 11 0 0 1 14.08 0"></path>
+                      <path d="M1.42 9.37a15 15 0 0 1 21.16 0"></path>
+                      <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+                      <line x1="12" y1="20" x2="12" y2="20"></line>
+                    </svg>
+                  </div>
+                  <span class="font-medium">Calculate Usage</span>
+                </a>
+
+                <a
+                  th:href="@{/?view=results}"
+                  class="flex items-center gap-3 p-4 transition-all"
+                  th:classappend="${param.view != null && param.view[0] == 'results' ? 'bg-blue-700 text-white' : 'text-blue-300 hover:bg-blue-800/50'}"
+                  th:disabled="${usageHistory.isEmpty()}"
+                >
+                  <div class="bg-purple-600 p-2 rounded-full">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      class="h-5 w-5"
+                    >
+                      <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+                      <line x1="3" y1="9" x2="21" y2="9"></line>
+                      <line x1="3" y1="15" x2="21" y2="15"></line>
+                      <line x1="9" y1="9" x2="9" y2="21"></line>
+                      <line x1="15" y1="9" x2="15" y2="21"></line>
+                    </svg>
+                  </div>
+                  <span class="font-medium">Latest Results</span>
+                </a>
+
+                <a
+                  th:href="@{/?view=history}"
+                  class="flex items-center gap-3 p-4 transition-all"
+                  th:classappend="${param.view != null && param.view[0] == 'history' ? 'bg-blue-700 text-white' : 'text-blue-300 hover:bg-blue-800/50'}"
+                >
+                  <div class="bg-indigo-600 p-2 rounded-full">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      class="h-5 w-5"
+                    >
+                      <path
+                        d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"
+                      ></path>
+                      <path d="M3 3v5h5"></path>
+                      <path d="M12 7v5l4 2"></path>
+                    </svg>
+                  </div>
+                  <span class="font-medium">Usage History</span>
+                  <span
+                    th:if="${!usageHistory.isEmpty()}"
+                    class="ml-auto bg-blue-600 text-white text-xs px-2 py-1 rounded-full"
+                    th:text="${recordCount}"
+                  ></span>
+                </a>
+              </div>
+
+              <!-- Stats Summary -->
+              <div
+                th:if="${!usageHistory.isEmpty()}"
+                class="p-4 border-t border-blue-800"
+              >
+                <h3 class="text-blue-300 text-sm mb-3">Usage Summary</h3>
+
+                <div class="space-y-4">
+                  <div>
+                    <div class="flex justify-between text-sm mb-1">
+                      <span class="text-blue-300">Total Energy</span>
+                      <span
+                        class="text-white font-medium"
+                        th:text="${#numbers.formatDecimal(totalEnergy, 1, 2) + ' kWh'}"
+                      ></span>
+                    </div>
+                    <div
+                      class="bg-blue-900 h-2 w-full rounded-full overflow-hidden"
+                    >
+                      <div
+                        class="bg-gradient-to-r from-blue-500 to-purple-500 h-full"
+                        th:style="'width: ' + ${totalEnergy > 10 ? 100 : totalEnergy * 10} + '%'"
+                      ></div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <div class="flex justify-between text-sm mb-1">
+                      <span class="text-blue-300">Total Cost</span>
+                      <span
+                        class="text-white font-medium"
+                        th:text="${'₦' + #numbers.formatDecimal(totalCost, 1, 2)}"
+                      ></span>
+                    </div>
+                    <div
+                      class="bg-blue-900 h-2 w-full rounded-full overflow-hidden"
+                    >
+                      <div
+                        class="bg-gradient-to-r from-blue-500 to-purple-500 h-full"
+                        th:style="'width: ' + ${totalCost > 1000 ? 100 : totalCost / 10} + '%'"
+                      ></div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <div class="flex justify-between text-sm mb-1">
+                      <span class="text-blue-300">Items Tracked</span>
+                      <span
+                        class="text-white font-medium"
+                        th:text="${recordCount}"
+                      ></span>
+                    </div>
+                    <div
+                      class="bg-blue-900 h-2 w-full rounded-full overflow-hidden"
+                    >
+                      <div
+                        class="bg-gradient-to-r from-blue-500 to-purple-500 h-full"
+                        th:style="'width: ' + ${recordCount > 10 ? 100 : recordCount * 10} + '%'"
+                      ></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Main Content Area -->
+          <div class="lg:col-span-2 animate__animated animate__fadeInUp">
+            <div
+              class="bg-blue-950/50 border-blue-700 border rounded-lg backdrop-blur-md h-full p-6"
+            >
+              <!-- Input View -->
+              <div
+                th:if="${param.view == null || param.view[0] == 'input'}"
+                class="space-y-6"
+              >
+                <div class="flex items-center gap-3 mb-6">
+                  <div
+                    class="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      class="h-5 w-5 text-white"
+                    >
+                      <path d="M5 12.55a11 11 0 0 1 14.08 0"></path>
+                      <path d="M1.42 9.37a15 15 0 0 1 21.16 0"></path>
+                      <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+                      <line x1="12" y1="20" x2="12" y2="20"></line>
+                    </svg>
+                  </div>
+                  <div>
+                    <h2 class="text-xl font-bold text-white">
+                      Calculate Power Usage
+                    </h2>
+                    <p class="text-blue-300 text-sm">
+                      Select an appliance and set usage duration
+                    </p>
+                  </div>
+                </div>
+
+                <form th:action="@{/calculate}" method="post" class="space-y-6">
+                  <div class="space-y-2">
+                    <label
+                      for="selectedAppliance"
+                      class="block text-blue-200 flex items-center gap-2"
+                    >
+                      <div id="applianceIcon">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          class="h-4 w-4"
+                        >
+                          <path d="M5 12.55a11 11 0 0 1 14.08 0"></path>
+                          <path d="M1.42 9.37a15 15 0 0 1 21.16 0"></path>
+                          <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+                          <line x1="12" y1="20" x2="12" y2="20"></line>
+                        </svg>
+                      </div>
+                      Select Appliance
+                    </label>
+                    <select
+                      id="selectedAppliance"
+                      name="selectedAppliance"
+                      onchange="updateApplianceDetails(this.value)"
+                      class="w-full px-3 py-2 bg-blue-900 border border-blue-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500 hover:bg-blue-800/50 transition-all"
+                    >
+                      <option value="" class="bg-blue-900 text-blue-300">
+                        Choose an appliance
+                      </option>
+                      <option
+                        th:each="appliance : ${appliances}"
+                        th:value="${appliance.name}"
+                        th:text="${appliance.name + ' (' + appliance.wattage + 'W)'}"
+                        class="bg-blue-900 text-white hover:bg-blue-800"
+                      ></option>
+                      <option
+                        value="custom"
+                        class="bg-blue-900 text-white hover:bg-blue-800"
+                      >
+                        Custom Appliance
+                      </option>
+                    </select>
+                  </div>
+
+                  <div
+                    id="customApplianceField"
+                    class="space-y-2"
+                    style="display: none"
+                  >
+                    <label for="customAppliance" class="block text-blue-200"
+                      >Custom Appliance Name</label
+                    >
+                    <input
+                      type="text"
+                      id="customAppliance"
+                      name="customAppliance"
+                      placeholder="Enter appliance name"
+                      class="w-full px-3 py-2 bg-blue-900 border-blue-700 border rounded-md text-white placeholder:text-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  <div class="space-y-2">
+                    <label for="wattage" class="block text-blue-200"
+                      >Wattage (W)</label
+                    >
+                    <input
+                      type="number"
+                      id="wattage"
+                      name="wattage"
+                      placeholder="Enter wattage in watts"
+                      required
+                      class="w-full px-3 py-2 bg-blue-900 border-blue-700 border rounded-md text-white placeholder:text-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  <div class="space-y-2">
+                    <div class="flex justify-between">
+                      <label
+                        for="hoursUsed"
+                        class="block text-blue-200 flex items-center gap-2"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          class="h-4 w-4"
+                        >
+                          <circle cx="12" cy="12" r="10"></circle>
+                          <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                        Usage Duration:
+                        <span class="text-white font-medium" id="hoursDisplay"
+                          >1 hours</span
+                        >
+                      </label>
+                    </div>
+                    <input
+                      type="range"
+                      id="hoursUsed"
+                      name="hoursUsed"
+                      min="0.1"
+                      max="24"
+                      step="0.1"
+                      value="1"
+                      oninput="updateHoursDisplay(this.value)"
+                      class="w-full h-2 bg-blue-900 rounded-lg appearance-none cursor-pointer"
+                    />
+                    <div class="flex justify-between text-xs text-blue-400">
+                      <span>0.1h</span>
+                      <span>6h</span>
+                      <span>12h</span>
+                      <span>18h</span>
+                      <span>24h</span>
+                    </div>
+                  </div>
+
+                  <div class="flex gap-4 pt-4">
+                    <button
+                      type="reset"
+                      class="px-4 py-2 border border-blue-600 text-blue-300 rounded-md hover:bg-blue-800 hover:text-white transition"
+                    >
+                      Clear
+                    </button>
+                    <button
+                      type="submit"
+                      class="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-md transition ml-auto"
+                    >
+                      Calculate Usage
+                    </button>
+                  </div>
+                </form>
+              </div>
+
+              <!-- Results View -->
+              <div
+                th:if="${param.view != null && param.view[0] == 'results' && !usageHistory.isEmpty()}"
+                class="animate__animated animate__fadeIn"
+              >
+                <div class="flex items-center gap-3 mb-6">
+                  <div
+                    class="h-10 w-10 rounded-full bg-gradient-to-br from-purple-500 to-indigo-500 flex items-center justify-center"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      class="h-5 w-5 text-white"
+                    >
+                      <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+                      <line x1="3" y1="9" x2="21" y2="9"></line>
+                      <line x1="3" y1="15" x2="21" y2="15"></line>
+                      <line x1="9" y1="9" x2="9" y2="21"></line>
+                      <line x1="15" y1="9" x2="15" y2="21"></line>
+                    </svg>
+                  </div>
+                  <div>
+                    <h2 class="text-xl font-bold text-white">Latest Results</h2>
+                    <p class="text-blue-300 text-sm">
+                      Your most recent power calculation
+                    </p>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div
+                    class="bg-gradient-to-br from-blue-900/80 to-blue-800/80 rounded-xl p-6 border border-blue-700"
+                  >
+                    <div class="flex items-center gap-3 mb-4">
+                      <div
+                        class="p-3 bg-blue-700 rounded-lg"
+                        id="resultApplianceIcon"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          class="h-5 w-5"
+                        >
+                          <path d="M5 12.55a11 11 0 0 1 14.08 0"></path>
+                          <path d="M1.42 9.37a15 15 0 0 1 21.16 0"></path>
+                          <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+                          <line x1="12" y1="20" x2="12" y2="20"></line>
+                        </svg>
+                      </div>
+                      <div>
+                        <h3
+                          class="font-medium text-white"
+                          th:text="${usageHistory[0].applianceName}"
+                        ></h3>
+                        <p
+                          class="text-blue-300 text-sm"
+                          th:text="${usageHistory[0].wattage + ' watts • ' + usageHistory[0].hoursUsed + ' hours'}"
+                        ></p>
+                      </div>
+                    </div>
+
+                    <div class="space-y-4 mt-6">
+                      <div>
+                        <p class="text-blue-300 text-sm mb-1">
+                          Energy Consumption
+                        </p>
+                        <div class="flex items-baseline">
+                          <span
+                            class="text-3xl font-bold text-white"
+                            th:text="${#numbers.formatDecimal(usageHistory[0].kWhConsumed, 1, 2)}"
+                          ></span>
+                          <span class="text-blue-300 ml-2">kWh</span>
+                        </div>
+                        <div
+                          class="bg-blue-900 h-1 w-full rounded-full overflow-hidden mt-2"
+                        >
+                          <div
+                            class="bg-gradient-to-r from-blue-500 to-purple-500 h-full"
+                            th:style="'width: ' + ${usageHistory[0].kWhConsumed > 5 ? 100 : usageHistory[0].kWhConsumed * 20} + '%'"
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div
+                    class="bg-gradient-to-br from-indigo-900/80 to-purple-900/80 rounded-xl p-6 border border-indigo-700"
+                  >
+                    <h3 class="text-lg font-medium text-white mb-4">
+                      Cost Estimate
+                    </h3>
+
+                    <div class="flex items-center justify-center">
+                      <span class="text-green-400 font-bold text-2xl mr-1"
+                        >₦</span
+                      >
+                      <span
+                        class="text-5xl font-bold text-white"
+                        th:text="${#numbers.formatDecimal(usageHistory[0].cost, 1, 2)}"
+                      ></span>
+                    </div>
+
+                    <div class="mt-4 pt-4 border-t border-indigo-700">
+                      <p
+                        class="text-blue-300 text-sm"
+                        th:text="${'This is approximately ' + #numbers.formatDecimal((usageHistory[0].cost / 1000) * 100, 1, 1) + '% of a ₦1,000 daily energy budget'}"
+                      ></p>
+                      <div
+                        class="bg-indigo-800 h-1 w-full rounded-full overflow-hidden mt-2"
+                      >
+                        <div
+                          class="bg-gradient-to-r from-blue-500 to-purple-500 h-full"
+                          th:style="'width: ' + ${usageHistory[0].cost > 1000 ? 100 : (usageHistory[0].cost / 1000) * 100} + '%'"
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="mt-6 flex justify-end">
+                  <a
+                    th:href="@{/}"
+                    class="px-4 py-2 bg-blue-700 hover:bg-blue-600 text-white rounded-md transition"
+                  >
+                    Calculate Another
+                  </a>
+                </div>
+              </div>
+
+              <!-- History View -->
+              <div
+                th:if="${param.view != null && param.view[0] == 'history'}"
+                class="animate__animated animate__fadeIn"
+              >
+                <div class="flex items-center justify-between mb-6">
+                  <div class="flex items-center gap-3">
+                    <div
+                      class="h-10 w-10 rounded-full bg-gradient-to-br from-indigo-500 to-blue-500 flex items-center justify-center"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="h-5 w-5 text-white"
+                      >
+                        <path
+                          d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"
+                        ></path>
+                        <path d="M3 3v5h5"></path>
+                        <path d="M12 7v5l4 2"></path>
+                      </svg>
+                    </div>
+                    <div>
+                      <h2 class="text-xl font-bold text-white">
+                        Usage History
+                      </h2>
+                      <p class="text-blue-300 text-sm">
+                        Your tracked power consumption
+                      </p>
+                    </div>
+                  </div>
+
+                  <a
+                    th:if="${!usageHistory.isEmpty()}"
+                    th:href="@{/delete-all}"
+                    class="px-3 py-1 border border-blue-700 text-blue-300 rounded-md text-sm flex items-center gap-1 hover:bg-blue-800 hover:text-white transition"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      class="h-4 w-4"
+                    >
+                      <path d="M3 6h18"></path>
+                      <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                      <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                      <line x1="10" y1="11" x2="10" y2="17"></line>
+                      <line x1="14" y1="11" x2="14" y2="17"></line>
+                    </svg>
+                    Clear All
+                  </a>
+                </div>
+
+                <div
+                  th:if="${!usageHistory.isEmpty()}"
+                  class="space-y-4 max-h-[500px] overflow-y-auto pr-2"
+                >
+                  <div
+                    th:each="record : ${usageHistory}"
+                    class="bg-blue-900/40 border-2 border-blue-600 rounded-lg p-4 hover:bg-blue-900/60 transition-colors animate__animated animate__fadeIn"
+                  >
+                    <div class="flex justify-between">
+                      <div class="flex items-center gap-3">
+                        <div
+                          class="p-2 bg-blue-800 rounded-lg history-appliance-icon"
+                          th:data-appliance="${record.applianceName}"
+                        >
+                          <!-- Icon will be updated via JavaScript -->
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            class="h-5 w-5"
+                          >
+                            <path d="M5 12.55a11 11 0 0 1 14.08 0"></path>
+                            <path d="M1.42 9.37a15 15 0 0 1 21.16 0"></path>
+                            <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+                            <line x1="12" y1="20" x2="12" y2="20"></line>
+                          </svg>
+                        </div>
+                        <div>
+                          <h4
+                            class="font-medium text-white"
+                            th:text="${record.applianceName}"
+                          ></h4>
+                          <p
+                            class="text-blue-300 text-xs"
+                            th:text="${#temporals.format(record.recordedAt, 'dd MMM yyyy, HH:mm')}"
+                          ></p>
+                        </div>
+                      </div>
+                      <a
+                        th:href="@{/delete/{id}(id=${record.id})}"
+                        class="h-8 w-8 flex items-center justify-center text-blue-400 hover:text-white hover:bg-blue-800 rounded-md transition"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          class="h-4 w-4"
+                        >
+                          <path d="M3 6h18"></path>
+                          <path
+                            d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"
+                          ></path>
+                          <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                          <line x1="10" y1="11" x2="10" y2="17"></line>
+                          <line x1="14" y1="11" x2="14" y2="17"></line>
+                        </svg>
+                      </a>
+                    </div>
+
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+                      <div class="bg-blue-950/50 p-2 rounded">
+                        <p class="text-blue-400 text-xs">Wattage</p>
+                        <p
+                          class="text-white font-medium"
+                          th:text="${record.wattage + ' W'}"
+                        ></p>
+                      </div>
+                      <div class="bg-blue-950/50 p-2 rounded">
+                        <p class="text-blue-400 text-xs">Duration</p>
+                        <p
+                          class="text-white font-medium"
+                          th:text="${record.hoursUsed + ' hours'}"
+                        ></p>
+                      </div>
+                      <div class="bg-blue-950/50 p-2 rounded">
+                        <p class="text-blue-400 text-xs">Energy</p>
+                        <p
+                          class="text-white font-medium"
+                          th:text="${#numbers.formatDecimal(record.kWhConsumed, 1, 2) + ' kWh'}"
+                        ></p>
+                      </div>
+                      <div class="bg-blue-950/50 p-2 rounded">
+                        <p class="text-blue-400 text-xs">Cost</p>
+                        <p
+                          class="text-white font-medium"
+                          th:text="${'₦' + #numbers.formatDecimal(record.cost, 1, 2)}"
+                        ></p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div
+                  th:if="${usageHistory.isEmpty()}"
+                  class="text-center py-12 bg-blue-900/20 rounded-lg border border-blue-800"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="h-12 w-12 text-blue-500 mx-auto mb-4 opacity-50"
+                  >
+                    <path
+                      d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"
+                    ></path>
+                    <path d="M3 3v5h5"></path>
+                    <path d="M12 7v5l4 2"></path>
+                  </svg>
+                  <h3 class="text-xl font-medium text-white mb-2">
+                    No History Yet
+                  </h3>
+                  <p class="text-blue-300 mb-6">
+                    Calculate some appliance usage to see your history
+                  </p>
+                  <a
+                    th:href="@{/}"
+                    class="px-4 py-2 bg-blue-700 hover:bg-blue-600 text-white rounded-md inline-flex items-center gap-2"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      class="h-4 w-4"
+                    >
+                      <path d="M5 12.55a11 11 0 0 1 14.08 0"></path>
+                      <path d="M1.42 9.37a15 15 0 0 1 21.16 0"></path>
+                      <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+                      <line x1="12" y1="20" x2="12" y2="20"></line>
+                    </svg>
+                    Calculate Now
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Energy Saving Tips -->
+        <div class="mt-8 animate__animated animate__fadeInUp animate__delay-1s">
+          <div
+            class="bg-gradient-to-r from-blue-900/50 to-indigo-900/50 border-blue-700 border rounded-lg backdrop-blur-md p-6"
+          >
+            <h3 class="text-xl font-bold text-white mb-4">
+              Energy Saving Tips
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div class="bg-blue-950/50 p-4 rounded-lg border border-blue-800">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="h-6 w-6 text-yellow-400 mb-2"
+                >
+                  <line x1="9" y1="18" x2="15" y2="18"></line>
+                  <line x1="10" y1="22" x2="14" y2="22"></line>
+                  <path
+                    d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"
+                  ></path>
+                </svg>
+                <h4 class="font-medium text-white mb-1">Switch to LED Bulbs</h4>
+                <p class="text-blue-300 text-sm">
+                  LED bulbs use up to 90% less energy than incandescent bulbs
+                  and last much longer.
+                </p>
+              </div>
+              <div class="bg-blue-950/50 p-4 rounded-lg border border-blue-800">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="h-6 w-6 text-blue-400 mb-2"
+                >
+                  <rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect>
+                  <polyline points="17 2 12 7 7 2"></polyline>
+                </svg>
+                <h4 class="font-medium text-white mb-1">Unplug Devices</h4>
+                <p class="text-blue-300 text-sm">
+                  Devices on standby can consume up to 10% of your home's
+                  energy. Unplug when not in use.
+                </p>
+              </div>
+              <div class="bg-blue-950/50 p-4 rounded-lg border border-blue-800">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="h-6 w-6 text-green-400 mb-2"
+                >
+                  <path
+                    d="M5 6a7 7 0 1 1 14 0v10a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3V6Z"
+                  ></path>
+                  <path d="M15 6v2"></path>
+                  <path d="M9 6v2"></path>
+                  <path d="M15 16v2"></path>
+                  <path d="M9 16v2"></path>
+                  <path d="M9 10h6"></path>
+                  <path d="M5 14h14"></path>
+                </svg>
+                <h4 class="font-medium text-white mb-1">
+                  Optimize Refrigerator
+                </h4>
+                <p class="text-blue-300 text-sm">
+                  Keep your refrigerator at 38°F and freezer at 5°F for optimal
+                  energy efficiency.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Define appliance icons
+      const applianceIcons = {
+        Refrigerator: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><path d="M5 6a7 7 0 1 1 14 0v10a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3V6Z"></path><path d="M15 6v2"></path><path d="M9 6v2"></path><path d="M15 16v2"></path><path d="M9 16v2"></path><path d="M9 10h6"></path><path d="M5 14h14"></path></svg>`,
+
+        "Air Conditioner": `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><rect x="2" y="6" width="20" height="12" rx="2"></rect><line x1="2" y1="12" x2="22" y2="12"></line><line x1="7" y1="12" x2="7" y2="18"></line><line x1="17" y1="12" x2="17" y2="18"></line><line x1="12" y1="6" x2="12" y2="12"></line></svg>`,
+
+        Television: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect><polyline points="17 2 12 7 7 2"></polyline></svg>`,
+
+        "Washing Machine": `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>`,
+
+        "Microwave Oven": `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="M6 8h.01"></path><circle cx="14" cy="12" r="4"></circle></svg>`,
+
+        "Electric Iron": `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><path d="m8 3 4 3 4-3"></path><path d="M7 8h10a4 4 0 0 1 4 4v1a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3v-1a4 4 0 0 1 4-4Z"></path><path d="M17 17v3"></path><path d="M7 17v3"></path></svg>`,
+
+        "Desktop Computer": `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><rect x="2" y="3" width="20" height="14" rx="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>`,
+
+        Laptop: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><path d="M20 16V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v9m16 0H4m16 0 1.28 2.55a1 1 0 0 1-.9 1.45H3.62a1 1 0 0 1-.9-1.45L4 16"></path></svg>`,
+
+        "Light Bulb (LED)": `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><line x1="9" y1="18" x2="15" y2="18"></line><line x1="10" y1="22" x2="14" y2="22"></line><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"></path></svg>`,
+
+        "Light Bulb (Incandescent)": `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><line x1="9" y1="18" x2="15" y2="18"></line><line x1="10" y1="22" x2="14" y2="22"></line><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"></path></svg>`,
+
+        "Electric Fan": `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><path d="M12 6a2 2 0 0 0-2 2c0 1 .6 1.5 1 2 .4.5 1 1 1 2a2 2 0 0 1-4 0c0-1 .6-1.5 1-2 .4-.5 1-1 1-2a2 2 0 0 0-2-2 2 2 0 1 0 0 4c1 0 1.5-.6 2-1 .5-.4 1-1 2-1a2 2 0 0 1 0 4 2 2 0 0 0 0-4c-1 0-1.5.6-2 1-.5.4-1 1-2 1a2 2 0 0 1-2-2c0-1 .6-1.5 1-2 .4-.5 1-1 1-2a2 2 0 0 1 4 0c0 1-.6 1.5-1 2-.4.5-1 1-1 2a2 2 0 0 0 2 2 2 2 0 1 0 0-4c-1 0-1.5.6-2 1-.5.4-1 1-2 1a2 2 0 0 1 0-4 2 2 0 0 0 0 4c1 0 1.5-.6 2-1 .5-.4 1-1 2-1a2 2 0 0 1 2 2Z"></path></svg>`,
+
+        "Water Heater": `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><path d="M4 14v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"></path><path d="M12 14a6 6 0 0 0 6-6c0-1.4-.3-2.8-1-4a2 2 0 0 0-4 0 2 2 0 0 0-4 0c-.7 1.2-1 2.6-1 4a6 6 0 0 0 6 6Z"></path><path d="M16 9a4 4 0 0 1-8 0"></path></svg>`,
+
+        Toaster: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><path d="M6 8v8a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V8H6Z"></path><path d="M19 6v2H5V6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2Z"></path><path d="M8 12h8"></path><path d="M9 19v1"></path><path d="M15 19v1"></path></svg>`,
+
+        "Coffee Maker": `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><path d="M17 8h1a4 4 0 1 1 0 8h-1"></path><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"></path><line x1="6" y1="2" x2="6" y2="4"></line><line x1="10" y1="2" x2="10" y2="4"></line><line x1="14" y1="2" x2="14" y2="4"></line></svg>`,
+
+        "Vacuum Cleaner": `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><path d="M12 22a9 9 0 0 0 9-9H3a9 9 0 0 0 9 9Z"></path><path d="M5 11V7a7 7 0 0 1 14 0v4"></path><rect x="7" y="1" width="2" height="4"></rect><rect x="15" y="1" width="2" height="4"></rect></svg>`,
+
+        "Smartphone Charger": `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><rect x="7" y="2" width="10" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12" y2="18"></line><path d="M7 9h10"></path><path d="M7 5h10"></path></svg>`,
+
+        // Default energy icon for custom appliances
+        custom: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><path d="M6 16.326A12 12 0 0 0 13 2.825V15H18L11 22v-9H6z"/></svg>`,
+      };
+
+      // Function to get appliance details including icon and wattage
+      function updateApplianceDetails(value) {
+        const customField = document.getElementById("customApplianceField");
+        const iconContainer = document.getElementById("applianceIcon");
+
+        // Handle custom appliance field visibility
+        if (value === "custom") {
+          customField.style.display = "block";
+          document.getElementById("wattage").value = "";
+          iconContainer.innerHTML = applianceIcons["custom"];
+        } else {
+          customField.style.display = "none";
+
+          // Set wattage and icon for pre-defined appliances
+          if (value) {
+            const appliances = [
+              { name: "Refrigerator", wattage: 150 },
+              { name: "Air Conditioner", wattage: 1500 },
+              { name: "Television", wattage: 100 },
+              { name: "Washing Machine", wattage: 500 },
+              { name: "Microwave Oven", wattage: 1000 },
+              { name: "Electric Iron", wattage: 1100 },
+              { name: "Desktop Computer", wattage: 200 },
+              { name: "Laptop", wattage: 50 },
+              { name: "Light Bulb (LED)", wattage: 10 },
+              { name: "Light Bulb (Incandescent)", wattage: 60 },
+              { name: "Electric Fan", wattage: 70 },
+              { name: "Water Heater", wattage: 4000 },
+              { name: "Toaster", wattage: 850 },
+              { name: "Coffee Maker", wattage: 800 },
+              { name: "Vacuum Cleaner", wattage: 1400 },
+              { name: "Smartphone Charger", wattage: 5 },
+            ];
+
+            const appliance = appliances.find((a) => a.name === value);
+            if (appliance) {
+              document.getElementById("wattage").value = appliance.wattage;
+
+              // Update the icon
+              iconContainer.innerHTML =
+                applianceIcons[value] || applianceIcons["custom"];
+            }
+          }
+        }
+      }
+
+      // Update hours display when slider changes
+      function updateHoursDisplay(value) {
+        document.getElementById("hoursDisplay").textContent = value + " hours";
+      }
+
+      // Update icons in history view
+      function updateHistoryIcons() {
+        const historyIcons = document.querySelectorAll(
+          ".history-appliance-icon"
+        );
+        historyIcons.forEach((icon) => {
+          const applianceName = icon.getAttribute("data-appliance");
+          icon.innerHTML =
+            applianceIcons[applianceName] || applianceIcons["custom"];
+        });
+      }
+
+      // Update the result view icon if available
+      function updateResultIcon() {
+        const resultIcon = document.getElementById("resultApplianceIcon");
+        if (resultIcon) {
+          const applianceName = resultIcon
+            .closest("div")
+            .querySelector("h3")
+            .textContent.trim();
+          resultIcon.innerHTML =
+            applianceIcons[applianceName] || applianceIcons["custom"];
+        }
+      }
+
+      // Initialize icons when page loads
+      document.addEventListener("DOMContentLoaded", function () {
+        updateHistoryIcons();
+        updateResultIcon();
+      });
+    </script>
+  </body>
+</html>
