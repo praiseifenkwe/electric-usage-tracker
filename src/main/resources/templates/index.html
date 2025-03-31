@@ -13,38 +13,139 @@
       rel="stylesheet"
     />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      /* Custom styles for a more modern look */
+      body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      }
+      
+      .bg-gradient-custom {
+        background: linear-gradient(135deg, #1a1c2d 0%, #121420 100%);
+      }
+      
+      .card-glass {
+        background: rgba(30, 32, 47, 0.6);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(79, 84, 121, 0.15);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      }
+      
+      .btn-primary {
+        background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        transition: all 0.3s ease;
+      }
+      
+      .btn-primary:hover {
+        box-shadow: 0 6px 16px rgba(99, 102, 241, 0.5);
+        transform: translateY(-1px);
+      }
+      
+      .btn-secondary {
+        background: rgba(79, 84, 121, 0.15);
+        border: 1px solid rgba(79, 84, 121, 0.3);
+        transition: all 0.3s ease;
+      }
+      
+      .btn-secondary:hover {
+        background: rgba(79, 84, 121, 0.25);
+      }
+      
+      .nav-item {
+        transition: all 0.2s ease;
+      }
+      
+      .nav-item-active {
+        background: rgba(99, 102, 241, 0.2);
+        border-left: 3px solid #6366f1;
+      }
+      
+      .input-field {
+        background: rgba(30, 32, 47, 0.6);
+        border: 1px solid rgba(79, 84, 121, 0.3);
+        transition: all 0.3s ease;
+      }
+      
+      .input-field:focus {
+        border-color: #6366f1;
+        box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+      }
+      
+      /* Custom range slider styling */
+      input[type=range] {
+        -webkit-appearance: none;
+        height: 6px;
+        background: rgba(79, 84, 121, 0.3);
+        border-radius: 5px;
+      }
+      
+      input[type=range]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #6366f1;
+        cursor: pointer;
+        box-shadow: 0 0 5px rgba(99, 102, 241, 0.5);
+      }
+      
+      input[type=range]::-moz-range-thumb {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #6366f1;
+        cursor: pointer;
+        border: none;
+        box-shadow: 0 0 5px rgba(99, 102, 241, 0.5);
+      }
+      
+      .progress-bar {
+        height: 6px;
+        border-radius: 3px;
+        background: rgba(79, 84, 121, 0.3);
+        overflow: hidden;
+      }
+      
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%);
+      }
+      
+      /* Custom select styling */
+      select {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%236366f1' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 10px center;
+        background-size: 16px;
+      }
+    </style>
   </head>
-  <body
-    class="min-h-screen bg-gradient-to-b from-blue-900 via-blue-800 to-indigo-900 text-white"
-  >
+  <body class="min-h-screen bg-gradient-custom text-gray-200">
     <div class="container mx-auto py-8 px-4">
-      <div class="max-w-5xl mx-auto py-8">
+      <div class="max-w-6xl mx-auto py-8">
         <!-- Header -->
-        <div class="text-center mb-8 animate__animated animate__fadeInDown">
-          <h1
-            class="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400 mb-2"
-          >
+        <div class="text-center mb-10 animate__animated animate__fadeInDown">
+          <h1 class="text-4xl md:text-5xl font-bold mb-2 text-white">
             Electric Power Calculator
           </h1>
-          <p class="text-blue-200 max-w-2xl mx-auto">
+          <p class="text-gray-400 max-w-2xl mx-auto">
             Track your energy consumption and estimate costs with our
             interactive calculator
           </p>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <!-- Navigation -->
           <div class="lg:col-span-1 animate__animated animate__fadeInLeft">
-            <div
-              class="bg-blue-950/50 border-blue-700 border rounded-lg backdrop-blur-md overflow-hidden"
-            >
+            <div class="card-glass rounded-xl overflow-hidden">
               <div class="flex flex-col">
                 <a
                   th:href="@{/?view=input}"
-                  class="flex items-center gap-3 p-4 transition-all"
-                  th:classappend="${param.view == null || param.view[0] == 'input' ? 'bg-blue-700 text-white' : 'text-blue-300 hover:bg-blue-800/50'}"
+                  class="flex items-center gap-3 p-4 transition-all nav-item"
+                  th:classappend="${param.view == null || param.view[0] == 'input' ? 'nav-item-active text-indigo-400' : 'text-gray-400 hover:bg-opacity-5 hover:bg-white'}"
                 >
-                  <div class="bg-blue-600 p-2 rounded-full">
+                  <div class="p-2 rounded-full bg-indigo-900/30">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       width="24"
@@ -57,10 +158,7 @@
                       stroke-linejoin="round"
                       class="h-5 w-5"
                     >
-                      <path d="M5 12.55a11 11 0 0 1 14.08 0"></path>
-                      <path d="M1.42 9.37a15 15 0 0 1 21.16 0"></path>
-                      <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
-                      <line x1="12" y1="20" x2="12" y2="20"></line>
+                      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
                     </svg>
                   </div>
                   <span class="font-medium">Calculate Usage</span>
@@ -68,11 +166,11 @@
 
                 <a
                   th:href="@{/?view=results}"
-                  class="flex items-center gap-3 p-4 transition-all"
-                  th:classappend="${param.view != null && param.view[0] == 'results' ? 'bg-blue-700 text-white' : 'text-blue-300 hover:bg-blue-800/50'}"
+                  class="flex items-center gap-3 p-4 transition-all nav-item"
+                  th:classappend="${param.view != null && param.view[0] == 'results' ? 'nav-item-active text-indigo-400' : 'text-gray-400 hover:bg-opacity-5 hover:bg-white'}"
                   th:disabled="${usageHistory.isEmpty()}"
                 >
-                  <div class="bg-purple-600 p-2 rounded-full">
+                  <div class="p-2 rounded-full bg-purple-900/30">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       width="24"
@@ -97,10 +195,10 @@
 
                 <a
                   th:href="@{/?view=history}"
-                  class="flex items-center gap-3 p-4 transition-all"
-                  th:classappend="${param.view != null && param.view[0] == 'history' ? 'bg-blue-700 text-white' : 'text-blue-300 hover:bg-blue-800/50'}"
+                  class="flex items-center gap-3 p-4 transition-all nav-item"
+                  th:classappend="${param.view != null && param.view[0] == 'history' ? 'nav-item-active text-indigo-400' : 'text-gray-400 hover:bg-opacity-5 hover:bg-white'}"
                 >
-                  <div class="bg-indigo-600 p-2 rounded-full">
+                  <div class="p-2 rounded-full bg-indigo-900/30">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       width="24"
@@ -123,8 +221,8 @@
                   <span class="font-medium">Usage History</span>
                   <span
                     th:if="${!usageHistory.isEmpty()}"
-                    class="ml-auto bg-blue-600 text-white text-xs px-2 py-1 rounded-full"
-                    th:text="${recordCount}"
+                    class="ml-auto bg-indigo-500 text-white text-xs px-2 py-1 rounded-full"
+                    th:text="${#numbers.formatInteger(recordCount, 1, 'COMMA')}"
                   ></span>
                 </a>
               </div>
@@ -132,60 +230,54 @@
               <!-- Stats Summary -->
               <div
                 th:if="${!usageHistory.isEmpty()}"
-                class="p-4 border-t border-blue-800"
+                class="p-5 border-t border-gray-800"
               >
-                <h3 class="text-blue-300 text-sm mb-3">Usage Summary</h3>
+                <h3 class="text-gray-400 text-sm font-medium mb-4">Usage Summary</h3>
 
-                <div class="space-y-4">
+                <div class="space-y-5">
                   <div>
-                    <div class="flex justify-between text-sm mb-1">
-                      <span class="text-blue-300">Total Energy</span>
+                    <div class="flex justify-between text-sm mb-2">
+                      <span class="text-gray-400">Total Energy</span>
                       <span
                         class="text-white font-medium"
-                        th:text="${#numbers.formatDecimal(totalEnergy, 1, 2) + ' kWh'}"
+                        th:text="${#numbers.formatDecimal(totalEnergy, 1, 'COMMA', 2, 'POINT') + ' kWh'}"
                       ></span>
                     </div>
-                    <div
-                      class="bg-blue-900 h-2 w-full rounded-full overflow-hidden"
-                    >
+                    <div class="progress-bar">
                       <div
-                        class="bg-gradient-to-r from-blue-500 to-purple-500 h-full"
+                        class="progress-fill"
                         th:style="'width: ' + ${totalEnergy > 10 ? 100 : totalEnergy * 10} + '%'"
                       ></div>
                     </div>
                   </div>
 
                   <div>
-                    <div class="flex justify-between text-sm mb-1">
-                      <span class="text-blue-300">Total Cost</span>
+                    <div class="flex justify-between text-sm mb-2">
+                      <span class="text-gray-400">Total Cost</span>
                       <span
                         class="text-white font-medium"
-                        th:text="${'₦' + #numbers.formatDecimal(totalCost, 1, 2)}"
+                        th:text="${'₦' + #numbers.formatDecimal(totalCost, 1, 'COMMA', 2, 'POINT')}"
                       ></span>
                     </div>
-                    <div
-                      class="bg-blue-900 h-2 w-full rounded-full overflow-hidden"
-                    >
+                    <div class="progress-bar">
                       <div
-                        class="bg-gradient-to-r from-blue-500 to-purple-500 h-full"
+                        class="progress-fill"
                         th:style="'width: ' + ${totalCost > 1000 ? 100 : totalCost / 10} + '%'"
                       ></div>
                     </div>
                   </div>
 
                   <div>
-                    <div class="flex justify-between text-sm mb-1">
-                      <span class="text-blue-300">Items Tracked</span>
+                    <div class="flex justify-between text-sm mb-2">
+                      <span class="text-gray-400">Items Tracked</span>
                       <span
                         class="text-white font-medium"
-                        th:text="${recordCount}"
+                        th:text="${#numbers.formatInteger(recordCount, 1, 'COMMA')}"
                       ></span>
                     </div>
-                    <div
-                      class="bg-blue-900 h-2 w-full rounded-full overflow-hidden"
-                    >
+                    <div class="progress-bar">
                       <div
-                        class="bg-gradient-to-r from-blue-500 to-purple-500 h-full"
+                        class="progress-fill"
                         th:style="'width: ' + ${recordCount > 10 ? 100 : recordCount * 10} + '%'"
                       ></div>
                     </div>
@@ -197,17 +289,15 @@
 
           <!-- Main Content Area -->
           <div class="lg:col-span-2 animate__animated animate__fadeInUp">
-            <div
-              class="bg-blue-950/50 border-blue-700 border rounded-lg backdrop-blur-md h-full p-6"
-            >
+            <div class="card-glass rounded-xl h-full p-6">
               <!-- Input View -->
               <div
                 th:if="${param.view == null || param.view[0] == 'input'}"
                 class="space-y-6"
               >
-                <div class="flex items-center gap-3 mb-6">
+                <div class="flex items-center gap-4 mb-6">
                   <div
-                    class="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center"
+                    class="h-12 w-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center shadow-lg"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -219,19 +309,16 @@
                       stroke-width="2"
                       stroke-linecap="round"
                       stroke-linejoin="round"
-                      class="h-5 w-5 text-white"
+                      class="h-6 w-6 text-white"
                     >
-                      <path d="M5 12.55a11 11 0 0 1 14.08 0"></path>
-                      <path d="M1.42 9.37a15 15 0 0 1 21.16 0"></path>
-                      <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
-                      <line x1="12" y1="20" x2="12" y2="20"></line>
+                      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
                     </svg>
                   </div>
                   <div>
                     <h2 class="text-xl font-bold text-white">
                       Calculate Power Usage
                     </h2>
-                    <p class="text-blue-300 text-sm">
+                    <p class="text-gray-400 text-sm">
                       Select an appliance and set usage duration
                     </p>
                   </div>
@@ -241,7 +328,7 @@
                   <div class="space-y-2">
                     <label
                       for="selectedAppliance"
-                      class="block text-blue-200 flex items-center gap-2"
+                      class="block text-gray-300 flex items-center gap-2"
                     >
                       <div id="applianceIcon">
                         <svg
@@ -256,10 +343,7 @@
                           stroke-linejoin="round"
                           class="h-4 w-4"
                         >
-                          <path d="M5 12.55a11 11 0 0 1 14.08 0"></path>
-                          <path d="M1.42 9.37a15 15 0 0 1 21.16 0"></path>
-                          <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
-                          <line x1="12" y1="20" x2="12" y2="20"></line>
+                          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
                         </svg>
                       </div>
                       Select Appliance
@@ -268,20 +352,20 @@
                       id="selectedAppliance"
                       name="selectedAppliance"
                       onchange="updateApplianceDetails(this.value)"
-                      class="w-full px-3 py-2 bg-blue-900 border border-blue-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500 hover:bg-blue-800/50 transition-all"
+                      class="w-full px-4 py-3 rounded-lg input-field text-white focus:outline-none"
                     >
-                      <option value="" class="bg-blue-900 text-blue-300">
+                      <option value="" class="bg-gray-900 text-gray-400">
                         Choose an appliance
                       </option>
                       <option
                         th:each="appliance : ${appliances}"
                         th:value="${appliance.name}"
-                        th:text="${appliance.name + ' (' + appliance.wattage + 'W)'}"
-                        class="bg-blue-900 text-white hover:bg-blue-800"
+                        th:text="${appliance.name + ' (' + #numbers.formatInteger(appliance.wattage, 1, 'COMMA') + 'W)'}"
+                        class="bg-gray-900 text-white"
                       ></option>
                       <option
                         value="custom"
-                        class="bg-blue-900 text-white hover:bg-blue-800"
+                        class="bg-gray-900 text-white"
                       >
                         Custom Appliance
                       </option>
@@ -293,7 +377,7 @@
                     class="space-y-2"
                     style="display: none"
                   >
-                    <label for="customAppliance" class="block text-blue-200"
+                    <label for="customAppliance" class="block text-gray-300"
                       >Custom Appliance Name</label
                     >
                     <input
@@ -301,12 +385,12 @@
                       id="customAppliance"
                       name="customAppliance"
                       placeholder="Enter appliance name"
-                      class="w-full px-3 py-2 bg-blue-900 border-blue-700 border rounded-md text-white placeholder:text-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      class="w-full px-4 py-3 rounded-lg input-field text-white placeholder:text-gray-500 focus:outline-none"
                     />
                   </div>
 
                   <div class="space-y-2">
-                    <label for="wattage" class="block text-blue-200"
+                    <label for="wattage" class="block text-gray-300"
                       >Wattage (W)</label
                     >
                     <input
@@ -315,15 +399,16 @@
                       name="wattage"
                       placeholder="Enter wattage in watts"
                       required
-                      class="w-full px-3 py-2 bg-blue-900 border-blue-700 border rounded-md text-white placeholder:text-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      class="w-full px-4 py-3 rounded-lg input-field text-white placeholder:text-gray-500 focus:outline-none"
+                      oninput="formatNumber(this)"
                     />
                   </div>
 
-                  <div class="space-y-2">
-                    <div class="flex justify-between">
+                  <div class="space-y-3">
+                    <div class="flex justify-between items-center">
                       <label
                         for="hoursUsed"
-                        class="block text-blue-200 flex items-center gap-2"
+                        class="block text-gray-300 flex items-center gap-2"
                       >
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
@@ -345,6 +430,17 @@
                           >1 hours</span
                         >
                       </label>
+                      <select
+                        id="timeUnit"
+                        name="timeUnit"
+                        onchange="updateSliderMax(this.value)"
+                        class="px-3 py-2 rounded-lg input-field text-white focus:outline-none text-sm w-[110px]"
+                      >
+                        <option value="hours" class="bg-gray-900 text-white">Hours</option>
+                        <option value="days" class="bg-gray-900 text-white">Days</option>
+                        <option value="weeks" class="bg-gray-900 text-white">Weeks</option>
+                        <option value="months" class="bg-gray-900 text-white">Months</option>
+                      </select>
                     </div>
                     <input
                       type="range"
@@ -354,10 +450,13 @@
                       max="24"
                       step="0.1"
                       value="1"
-                      oninput="updateHoursDisplay(this.value)"
-                      class="w-full h-2 bg-blue-900 rounded-lg appearance-none cursor-pointer"
+                      oninput="updateHoursDisplay(this.value, document.getElementById('timeUnit').value)"
+                      class="w-full"
                     />
-                    <div class="flex justify-between text-xs text-blue-400">
+                    <div
+                      class="flex justify-between text-xs text-gray-500"
+                      id="sliderLabels"
+                    >
                       <span>0.1h</span>
                       <span>6h</span>
                       <span>12h</span>
@@ -366,16 +465,16 @@
                     </div>
                   </div>
 
-                  <div class="flex gap-4 pt-4">
+                  <div class="flex gap-4 pt-6">
                     <button
                       type="reset"
-                      class="px-4 py-2 border border-blue-600 text-blue-300 rounded-md hover:bg-blue-800 hover:text-white transition"
+                      class="px-5 py-2.5 rounded-lg btn-secondary text-gray-300"
                     >
                       Clear
                     </button>
                     <button
                       type="submit"
-                      class="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-md transition ml-auto"
+                      class="px-5 py-2.5 rounded-lg btn-primary text-white font-medium ml-auto"
                     >
                       Calculate Usage
                     </button>
@@ -388,9 +487,9 @@
                 th:if="${param.view != null && param.view[0] == 'results' && !usageHistory.isEmpty()}"
                 class="animate__animated animate__fadeIn"
               >
-                <div class="flex items-center gap-3 mb-6">
+                <div class="flex items-center gap-4 mb-8">
                   <div
-                    class="h-10 w-10 rounded-full bg-gradient-to-br from-purple-500 to-indigo-500 flex items-center justify-center"
+                    class="h-12 w-12 rounded-full bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center shadow-lg"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -402,7 +501,7 @@
                       stroke-width="2"
                       stroke-linecap="round"
                       stroke-linejoin="round"
-                      class="h-5 w-5 text-white"
+                      class="h-6 w-6 text-white"
                     >
                       <rect x="3" y="3" width="18" height="18" rx="2"></rect>
                       <line x1="3" y1="9" x2="21" y2="9"></line>
@@ -413,7 +512,7 @@
                   </div>
                   <div>
                     <h2 class="text-xl font-bold text-white">Latest Results</h2>
-                    <p class="text-blue-300 text-sm">
+                    <p class="text-gray-400 text-sm">
                       Your most recent power calculation
                     </p>
                   </div>
@@ -421,13 +520,15 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div
-                    class="bg-gradient-to-br from-blue-900/80 to-blue-800/80 rounded-xl p-6 border border-blue-700"
+                    class="bg-gradient-to-br from-gray-900/80 to-gray-800/80 rounded-xl p-6 border border-gray-700 shadow-lg"
                   >
                     <div class="flex items-center gap-3 mb-4">
                       <div
-                        class="p-3 bg-blue-700 rounded-lg"
+                        class="p-3 rounded-lg bg-indigo-900/50"
                         id="resultApplianceIcon"
+                        th:data-appliance="${usageHistory[0].applianceName}"
                       >
+                        <!-- Will be replaced by JavaScript -->
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           width="24"
@@ -440,10 +541,7 @@
                           stroke-linejoin="round"
                           class="h-5 w-5"
                         >
-                          <path d="M5 12.55a11 11 0 0 1 14.08 0"></path>
-                          <path d="M1.42 9.37a15 15 0 0 1 21.16 0"></path>
-                          <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
-                          <line x1="12" y1="20" x2="12" y2="20"></line>
+                          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
                         </svg>
                       </div>
                       <div>
@@ -452,29 +550,27 @@
                           th:text="${usageHistory[0].applianceName}"
                         ></h3>
                         <p
-                          class="text-blue-300 text-sm"
-                          th:text="${usageHistory[0].wattage + ' watts • ' + usageHistory[0].hoursUsed + ' hours'}"
+                          class="text-gray-400 text-sm"
+                          th:text="${#numbers.formatInteger(usageHistory[0].wattage, 1, 'COMMA') + ' watts • ' + usageHistory[0].hoursUsed + ' ' + usageHistory[0].timeUnit}"
                         ></p>
                       </div>
                     </div>
 
                     <div class="space-y-4 mt-6">
                       <div>
-                        <p class="text-blue-300 text-sm mb-1">
+                        <p class="text-gray-400 text-sm mb-1">
                           Energy Consumption
                         </p>
                         <div class="flex items-baseline">
                           <span
                             class="text-3xl font-bold text-white"
-                            th:text="${#numbers.formatDecimal(usageHistory[0].kWhConsumed, 1, 2)}"
+                            th:text="${#numbers.formatDecimal(usageHistory[0].kWhConsumed, 1, 'COMMA', 2, 'POINT')}"
                           ></span>
-                          <span class="text-blue-300 ml-2">kWh</span>
+                          <span class="text-gray-400 ml-2">kWh</span>
                         </div>
-                        <div
-                          class="bg-blue-900 h-1 w-full rounded-full overflow-hidden mt-2"
-                        >
+                        <div class="progress-bar mt-2">
                           <div
-                            class="bg-gradient-to-r from-blue-500 to-purple-500 h-full"
+                            class="progress-fill"
                             th:style="'width: ' + ${usageHistory[0].kWhConsumed > 5 ? 100 : usageHistory[0].kWhConsumed * 20} + '%'"
                           ></div>
                         </div>
@@ -483,32 +579,30 @@
                   </div>
 
                   <div
-                    class="bg-gradient-to-br from-indigo-900/80 to-purple-900/80 rounded-xl p-6 border border-indigo-700"
+                    class="bg-gradient-to-br from-gray-900/80 to-indigo-900/40 rounded-xl p-6 border border-gray-700 shadow-lg"
                   >
                     <h3 class="text-lg font-medium text-white mb-4">
                       Cost Estimate
                     </h3>
 
-                    <div class="flex items-center justify-center">
+                    <div class="flex items-center justify-center my-4">
                       <span class="text-green-400 font-bold text-2xl mr-1"
                         >₦</span
                       >
                       <span
                         class="text-5xl font-bold text-white"
-                        th:text="${#numbers.formatDecimal(usageHistory[0].cost, 1, 2)}"
+                        th:text="${#numbers.formatDecimal(usageHistory[0].cost, 1, 'COMMA', 2, 'POINT')}"
                       ></span>
                     </div>
 
-                    <div class="mt-4 pt-4 border-t border-indigo-700">
+                    <div class="mt-4 pt-4 border-t border-gray-700">
                       <p
-                        class="text-blue-300 text-sm"
-                        th:text="${'This is approximately ' + #numbers.formatDecimal((usageHistory[0].cost / 1000) * 100, 1, 1) + '% of a ₦1,000 daily energy budget'}"
+                        class="text-gray-400 text-sm"
+                        th:text="${'This is approximately ' + #numbers.formatDecimal((usageHistory[0].cost / 1000) * 100, 1, 'COMMA', 1, 'POINT') + '% of a ₦1,000 daily energy budget'}"
                       ></p>
-                      <div
-                        class="bg-indigo-800 h-1 w-full rounded-full overflow-hidden mt-2"
-                      >
+                      <div class="progress-bar mt-2">
                         <div
-                          class="bg-gradient-to-r from-blue-500 to-purple-500 h-full"
+                          class="progress-fill"
                           th:style="'width: ' + ${usageHistory[0].cost > 1000 ? 100 : (usageHistory[0].cost / 1000) * 100} + '%'"
                         ></div>
                       </div>
@@ -516,10 +610,10 @@
                   </div>
                 </div>
 
-                <div class="mt-6 flex justify-end">
+                <div class="mt-8 flex justify-end">
                   <a
                     th:href="@{/}"
-                    class="px-4 py-2 bg-blue-700 hover:bg-blue-600 text-white rounded-md transition"
+                    class="px-5 py-2.5 rounded-lg btn-primary text-white font-medium"
                   >
                     Calculate Another
                   </a>
@@ -531,10 +625,10 @@
                 th:if="${param.view != null && param.view[0] == 'history'}"
                 class="animate__animated animate__fadeIn"
               >
-                <div class="flex items-center justify-between mb-6">
-                  <div class="flex items-center gap-3">
+                <div class="flex items-center justify-between mb-8">
+                  <div class="flex items-center gap-4">
                     <div
-                      class="h-10 w-10 rounded-full bg-gradient-to-br from-indigo-500 to-blue-500 flex items-center justify-center"
+                      class="h-12 w-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center shadow-lg"
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -546,7 +640,7 @@
                         stroke-width="2"
                         stroke-linecap="round"
                         stroke-linejoin="round"
-                        class="h-5 w-5 text-white"
+                        class="h-6 w-6 text-white"
                       >
                         <path
                           d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"
@@ -559,7 +653,7 @@
                       <h2 class="text-xl font-bold text-white">
                         Usage History
                       </h2>
-                      <p class="text-blue-300 text-sm">
+                      <p class="text-gray-400 text-sm">
                         Your tracked power consumption
                       </p>
                     </div>
@@ -568,7 +662,7 @@
                   <a
                     th:if="${!usageHistory.isEmpty()}"
                     th:href="@{/delete-all}"
-                    class="px-3 py-1 border border-blue-700 text-blue-300 rounded-md text-sm flex items-center gap-1 hover:bg-blue-800 hover:text-white transition"
+                    class="px-3 py-1.5 border border-gray-700 text-gray-400 rounded-lg text-sm flex items-center gap-1.5 hover:bg-gray-800 hover:text-white transition shadow-sm"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -594,19 +688,19 @@
 
                 <div
                   th:if="${!usageHistory.isEmpty()}"
-                  class="space-y-4 max-h-[500px] overflow-y-auto pr-2"
+                  class="space-y-5 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar"
                 >
                   <div
                     th:each="record : ${usageHistory}"
-                    class="bg-blue-900/40 border-2 border-blue-600 rounded-lg p-4 hover:bg-blue-900/60 transition-colors animate__animated animate__fadeIn"
+                    class="bg-gray-900/60 rounded-lg p-5 hover:bg-gray-800/60 transition-colors animate__animated animate__fadeIn shadow-md border border-gray-800/60"
                   >
                     <div class="flex justify-between">
                       <div class="flex items-center gap-3">
                         <div
-                          class="p-2 bg-blue-800 rounded-lg history-appliance-icon"
+                          class="p-2.5 bg-indigo-900/30 rounded-lg history-appliance-icon"
                           th:data-appliance="${record.applianceName}"
                         >
-                          <!-- Icon will be updated via JavaScript -->
+                          <!-- Will be replaced by JavaScript -->
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
                             width="24"
@@ -619,10 +713,7 @@
                             stroke-linejoin="round"
                             class="h-5 w-5"
                           >
-                            <path d="M5 12.55a11 11 0 0 1 14.08 0"></path>
-                            <path d="M1.42 9.37a15 15 0 0 1 21.16 0"></path>
-                            <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
-                            <line x1="12" y1="20" x2="12" y2="20"></line>
+                            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
                           </svg>
                         </div>
                         <div>
@@ -631,14 +722,14 @@
                             th:text="${record.applianceName}"
                           ></h4>
                           <p
-                            class="text-blue-300 text-xs"
+                            class="text-gray-400 text-xs"
                             th:text="${#temporals.format(record.recordedAt, 'dd MMM yyyy, HH:mm')}"
                           ></p>
                         </div>
                       </div>
                       <a
                         th:href="@{/delete/{id}(id=${record.id})}"
-                        class="h-8 w-8 flex items-center justify-center text-blue-400 hover:text-white hover:bg-blue-800 rounded-md transition"
+                        class="h-8 w-8 flex items-center justify-center text-gray-500 hover:text-white hover:bg-gray-700 rounded-md transition"
                       >
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
@@ -664,32 +755,32 @@
                     </div>
 
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
-                      <div class="bg-blue-950/50 p-2 rounded">
-                        <p class="text-blue-400 text-xs">Wattage</p>
+                      <div class="bg-gray-800/50 p-3 rounded-lg">
+                        <p class="text-gray-400 text-xs">Wattage</p>
                         <p
                           class="text-white font-medium"
-                          th:text="${record.wattage + ' W'}"
+                          th:text="${#numbers.formatInteger(record.wattage, 1, 'COMMA') + ' W'}"
                         ></p>
                       </div>
-                      <div class="bg-blue-950/50 p-2 rounded">
-                        <p class="text-blue-400 text-xs">Duration</p>
+                      <div class="bg-gray-800/50 p-3 rounded-lg">
+                        <p class="text-gray-400 text-xs">Duration</p>
                         <p
                           class="text-white font-medium"
-                          th:text="${record.hoursUsed + ' hours'}"
+                          th:text="${record.hoursUsed + ' ' + record.timeUnit}"
                         ></p>
                       </div>
-                      <div class="bg-blue-950/50 p-2 rounded">
-                        <p class="text-blue-400 text-xs">Energy</p>
+                      <div class="bg-gray-800/50 p-3 rounded-lg">
+                        <p class="text-gray-400 text-xs">Energy</p>
                         <p
                           class="text-white font-medium"
-                          th:text="${#numbers.formatDecimal(record.kWhConsumed, 1, 2) + ' kWh'}"
+                          th:text="${#numbers.formatDecimal(record.kWhConsumed, 1, 'COMMA', 2, 'POINT') + ' kWh'}"
                         ></p>
                       </div>
-                      <div class="bg-blue-950/50 p-2 rounded">
-                        <p class="text-blue-400 text-xs">Cost</p>
+                      <div class="bg-gray-800/50 p-3 rounded-lg">
+                        <p class="text-gray-400 text-xs">Cost</p>
                         <p
                           class="text-white font-medium"
-                          th:text="${'₦' + #numbers.formatDecimal(record.cost, 1, 2)}"
+                          th:text="${'₦' + #numbers.formatDecimal(record.cost, 1, 'COMMA', 2, 'POINT')}"
                         ></p>
                       </div>
                     </div>
@@ -698,7 +789,7 @@
 
                 <div
                   th:if="${usageHistory.isEmpty()}"
-                  class="text-center py-12 bg-blue-900/20 rounded-lg border border-blue-800"
+                  class="text-center py-16 bg-gray-900/30 rounded-lg border border-gray-800"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -710,7 +801,7 @@
                     stroke-width="2"
                     stroke-linecap="round"
                     stroke-linejoin="round"
-                    class="h-12 w-12 text-blue-500 mx-auto mb-4 opacity-50"
+                    class="h-16 w-16 text-indigo-400 mx-auto mb-6 opacity-40"
                   >
                     <path
                       d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"
@@ -718,15 +809,15 @@
                     <path d="M3 3v5h5"></path>
                     <path d="M12 7v5l4 2"></path>
                   </svg>
-                  <h3 class="text-xl font-medium text-white mb-2">
+                  <h3 class="text-xl font-medium text-white mb-3">
                     No History Yet
                   </h3>
-                  <p class="text-blue-300 mb-6">
+                  <p class="text-gray-400 mb-8">
                     Calculate some appliance usage to see your history
                   </p>
                   <a
                     th:href="@{/}"
-                    class="px-4 py-2 bg-blue-700 hover:bg-blue-600 text-white rounded-md inline-flex items-center gap-2"
+                    class="px-5 py-2.5 rounded-lg btn-primary text-white inline-flex items-center gap-2 font-medium"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -754,15 +845,15 @@
         </div>
 
         <!-- Energy Saving Tips -->
-        <div class="mt-8 animate__animated animate__fadeInUp animate__delay-1s">
+        <div class="mt-10 animate__animated animate__fadeInUp animate__delay-1s">
           <div
-            class="bg-gradient-to-r from-blue-900/50 to-indigo-900/50 border-blue-700 border rounded-lg backdrop-blur-md p-6"
+            class="card-glass rounded-xl p-6"
           >
-            <h3 class="text-xl font-bold text-white mb-4">
+            <h3 class="text-xl font-bold text-white mb-6">
               Energy Saving Tips
             </h3>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div class="bg-blue-950/50 p-4 rounded-lg border border-blue-800">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div class="bg-gray-800/30 p-5 rounded-xl border border-gray-700/50 shadow-md">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="24"
@@ -773,7 +864,7 @@
                   stroke-width="2"
                   stroke-linecap="round"
                   stroke-linejoin="round"
-                  class="h-6 w-6 text-yellow-400 mb-2"
+                  class="h-7 w-7 text-yellow-400 mb-3"
                 >
                   <line x1="9" y1="18" x2="15" y2="18"></line>
                   <line x1="10" y1="22" x2="14" y2="22"></line>
@@ -781,13 +872,13 @@
                     d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"
                   ></path>
                 </svg>
-                <h4 class="font-medium text-white mb-1">Switch to LED Bulbs</h4>
-                <p class="text-blue-300 text-sm">
+                <h4 class="font-medium text-white text-lg mb-2">Switch to LED Bulbs</h4>
+                <p class="text-gray-400">
                   LED bulbs use up to 90% less energy than incandescent bulbs
                   and last much longer.
                 </p>
               </div>
-              <div class="bg-blue-950/50 p-4 rounded-lg border border-blue-800">
+              <div class="bg-gray-800/30 p-5 rounded-xl border border-gray-700/50 shadow-md">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="24"
@@ -798,18 +889,18 @@
                   stroke-width="2"
                   stroke-linecap="round"
                   stroke-linejoin="round"
-                  class="h-6 w-6 text-blue-400 mb-2"
+                  class="h-7 w-7 text-indigo-400 mb-3"
                 >
                   <rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect>
                   <polyline points="17 2 12 7 7 2"></polyline>
                 </svg>
-                <h4 class="font-medium text-white mb-1">Unplug Devices</h4>
-                <p class="text-blue-300 text-sm">
+                <h4 class="font-medium text-white text-lg mb-2">Unplug Devices</h4>
+                <p class="text-gray-400">
                   Devices on standby can consume up to 10% of your home's
                   energy. Unplug when not in use.
                 </p>
               </div>
-              <div class="bg-blue-950/50 p-4 rounded-lg border border-blue-800">
+              <div class="bg-gray-800/30 p-5 rounded-xl border border-gray-700/50 shadow-md">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="24"
@@ -820,7 +911,7 @@
                   stroke-width="2"
                   stroke-linecap="round"
                   stroke-linejoin="round"
-                  class="h-6 w-6 text-green-400 mb-2"
+                  class="h-7 w-7 text-green-400 mb-3"
                 >
                   <path
                     d="M5 6a7 7 0 1 1 14 0v10a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3V6Z"
@@ -832,10 +923,10 @@
                   <path d="M9 10h6"></path>
                   <path d="M5 14h14"></path>
                 </svg>
-                <h4 class="font-medium text-white mb-1">
+                <h4 class="font-medium text-white text-lg mb-2">
                   Optimize Refrigerator
                 </h4>
-                <p class="text-blue-300 text-sm">
+                <p class="text-gray-400">
                   Keep your refrigerator at 38°F and freezer at 5°F for optimal
                   energy efficiency.
                 </p>
@@ -869,7 +960,7 @@
 
         "Light Bulb (Incandescent)": `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><line x1="9" y1="18" x2="15" y2="18"></line><line x1="10" y1="22" x2="14" y2="22"></line><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"></path></svg>`,
 
-        "Electric Fan": `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><path d="M12 6a2 2 0 0 0-2 2c0 1 .6 1.5 1 2 .4.5 1 1 1 2a2 2 0 0 1-4 0c0-1 .6-1.5 1-2 .4-.5 1-1 1-2a2 2 0 0 0-2-2 2 2 0 1 0 0 4c1 0 1.5-.6 2-1 .5-.4 1-1 2-1a2 2 0 0 1 0 4 2 2 0 0 0 0-4c-1 0-1.5.6-2 1-.5.4-1 1-2 1a2 2 0 0 1-2-2c0-1 .6-1.5 1-2 .4-.5 1-1 1-2a2 2 0 0 1 4 0c0 1-.6 1.5-1 2-.4.5-1 1-1 2a2 2 0 0 0 2 2 2 2 0 1 0 0-4c-1 0-1.5.6-2 1-.5.4-1 1-2 1a2 2 0 0 1 0-4 2 2 0 0 0 0 4c1 0 1.5-.6 2-1 .5-.4 1-1 2-1a2 2 0 0 1 2 2Z"></path></svg>`,
+        "Electric Fan": `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><path d="M12 6a2 2 0 0 0-2 2c0 1 .6 1.5 1 2 .4.5 1 1 1 2a2 2 0 0 1-4 0c0-1 .6-1.5 1-2 .4-.5 1-1 1-2a2 2 0 0 0-2-2 2 2 0 1 0 0 4c1 0 1.5-.6 2-1 .5-.4 1-1 1-1a2 2 0 0 1 0 4 2 2 0 0 0 0-4c-1 0-1.5.6-2 1-.5.4-1 1-2 1a2 2 0 0 1-2-2c0-1 .6-1.5 1-2 .4-.5 1-1 1-2a2 2 0 0 1 4 0c0 1-.6 1.5-1 2-.4.5-1 1-1 2a2 2 0 0 0 2 2 2 2 0 1 0 0-4c-1 0-1.5.6-2 1-.5.4-1 1-2 1a2 2 0 0 1 0-4 2 2 0 0 0 0 4c1 0 1.5-.6 2-1 .5-.4 1-1 2-1a2 2 0 0 1 2 2Z"></path></svg>`,
 
         "Water Heater": `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><path d="M4 14v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"></path><path d="M12 14a6 6 0 0 0 6-6c0-1.4-.3-2.8-1-4a2 2 0 0 0-4 0 2 2 0 0 0-4 0c-.7 1.2-1 2.6-1 4a6 6 0 0 0 6 6Z"></path><path d="M16 9a4 4 0 0 1-8 0"></path></svg>`,
 
@@ -881,8 +972,8 @@
 
         "Smartphone Charger": `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><rect x="7" y="2" width="10" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12" y2="18"></line><path d="M7 9h10"></path><path d="M7 5h10"></path></svg>`,
 
-        // Default energy icon for custom appliances
-        custom: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><path d="M6 16.326A12 12 0 0 0 13 2.825V15H18L11 22v-9H6z"/></svg>`,
+        // Default icon is now a zap icon
+        custom: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>`,
       };
 
       // Function to get appliance details including icon and wattage
@@ -931,9 +1022,65 @@
         }
       }
 
-      // Update hours display when slider changes
-      function updateHoursDisplay(value) {
-        document.getElementById("hoursDisplay").textContent = value + " hours";
+      // Update slider max value and labels based on selected time unit
+      function updateSliderMax(unit) {
+        const slider = document.getElementById("hoursUsed");
+        const labels = document.getElementById("sliderLabels");
+        let max, steps;
+        switch (unit) {
+          case "days":
+            max = 30; // Up to 30 days
+            steps = ["0.1d", "7.5d", "15d", "22.5d", "30d"];
+            break;
+          case "weeks":
+            max = 12; // Up to 12 weeks
+            steps = ["0.1w", "3w", "6w", "9w", "12w"];
+            break;
+          case "months":
+            max = 12; // Up to 12 months
+            steps = ["0.1m", "3m", "6m", "9m", "12m"];
+            break;
+          default: // hours
+            max = 24;
+            steps = ["0.1h", "6h", "12h", "18h", "24h"];
+            break;
+        }
+        slider.max = max;
+        slider.value = Math.min(slider.value, max);
+        updateHoursDisplay(slider.value, unit);
+        labels.innerHTML = steps
+          .map((step) => `<span>${step}</span>`)
+          .join("");
+      }
+
+      // Update hours display when slider or unit changes
+      function updateHoursDisplay(value, unit) {
+        document.getElementById("hoursDisplay").textContent = `${value} ${unit}`;
+      }
+
+      // Format number with commas for thousands separators
+      function formatNumber(input) {
+        // Store the caret position
+        const caretPos = input.selectionStart;
+        
+        // Get the raw value without commas
+        const rawValue = input.value.replace(/,/g, '');
+        
+        // Format the number with commas
+        if (rawValue !== '') {
+          const formattedValue = Number(rawValue).toLocaleString('en-US');
+          
+          // Calculate new caret position (considering added commas)
+          const newValue = formattedValue;
+          const newValueLength = newValue.length;
+          const oldValueLength = input.value.length;
+          
+          input.value = formattedValue;
+          
+          // Adjust caret position for added/removed commas
+          const newCaretPos = caretPos + (newValueLength - oldValueLength);
+          input.setSelectionRange(newCaretPos, newCaretPos);
+        }
       }
 
       // Update icons in history view
@@ -952,17 +1099,15 @@
       function updateResultIcon() {
         const resultIcon = document.getElementById("resultApplianceIcon");
         if (resultIcon) {
-          const applianceName = resultIcon
-            .closest("div")
-            .querySelector("h3")
-            .textContent.trim();
+          const applianceName = resultIcon.getAttribute("data-appliance");
           resultIcon.innerHTML =
             applianceIcons[applianceName] || applianceIcons["custom"];
         }
       }
 
-      // Initialize icons when page loads
+      // Initialize slider and icons when page loads
       document.addEventListener("DOMContentLoaded", function () {
+        updateSliderMax("hours"); // Initialize with hours
         updateHistoryIcons();
         updateResultIcon();
       });

@@ -17,6 +17,7 @@ public class ApplianceUsage {
     private String applianceName;
     private double wattage;
     private double hoursUsed;
+    private String timeUnit; // New field for time unit (e.g., "hours", "days", "weeks", "months")
     private double kWhConsumed;
     private double cost;
     private LocalDateTime recordedAt;
@@ -24,20 +25,17 @@ public class ApplianceUsage {
     // Default constructor
     public ApplianceUsage() {
         this.recordedAt = LocalDateTime.now();
+        this.timeUnit = "hours"; // Default to hours
     }
 
     // Constructor with parameters
-    public ApplianceUsage(String applianceName, double wattage, double hoursUsed) {
+    public ApplianceUsage(String applianceName, double wattage, double hoursUsed, String timeUnit) {
         this.applianceName = applianceName;
         this.wattage = wattage;
         this.hoursUsed = hoursUsed;
+        this.timeUnit = timeUnit != null ? timeUnit : "hours";
         this.recordedAt = LocalDateTime.now();
-        
-        // Calculate kWh: (wattage × hours) ÷ 1000
-        this.kWhConsumed = (wattage * hoursUsed) / 1000;
-        
-        // Calculate cost: kWh × rate (assuming ₦70 per kWh)
-        this.cost = this.kWhConsumed * 70;
+        recalculate(); // Calculate kWh and cost upon creation
     }
 
     // Getters and setters
@@ -73,6 +71,14 @@ public class ApplianceUsage {
         this.hoursUsed = hoursUsed;
     }
 
+    public String getTimeUnit() {
+        return timeUnit;
+    }
+
+    public void setTimeUnit(String timeUnit) {
+        this.timeUnit = timeUnit;
+    }
+
     public double getKWhConsumed() {
         return kWhConsumed;
     }
@@ -97,9 +103,24 @@ public class ApplianceUsage {
         this.recordedAt = recordedAt;
     }
 
-    // Method to recalculate consumption and cost
+    // Method to recalculate consumption and cost based on time unit
     public void recalculate() {
-        this.kWhConsumed = (this.wattage * this.hoursUsed) / 1000;
+        double hours;
+        switch (this.timeUnit != null ? this.timeUnit : "hours") {
+            case "days":
+                hours = this.hoursUsed * 24;
+                break;
+            case "weeks":
+                hours = this.hoursUsed * 24 * 7;
+                break;
+            case "months":
+                hours = this.hoursUsed * 24 * 30; // Approximation for a month
+                break;
+            default: // hours
+                hours = this.hoursUsed;
+                break;
+        }
+        this.kWhConsumed = (this.wattage * hours) / 1000;
         this.cost = this.kWhConsumed * 70;
     }
 }

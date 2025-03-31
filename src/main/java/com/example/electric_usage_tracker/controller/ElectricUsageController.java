@@ -36,7 +36,8 @@ public class ElectricUsageController {
     @PostMapping("/calculate")
     public String calculateUsage(@ModelAttribute ApplianceUsage usage, 
                                 @RequestParam(required = false) String selectedAppliance,
-                                @RequestParam(required = false) String customAppliance) {
+                                @RequestParam(required = false) String customAppliance,
+                                @RequestParam String timeUnit) {
         
         // Set appliance name based on form inputs
         if ("custom".equals(selectedAppliance)) {
@@ -49,6 +50,9 @@ public class ElectricUsageController {
                 usage.setWattage(appliance.getWattage());
             }
         }
+        
+        // Set the time unit
+        usage.setTimeUnit(timeUnit);
         
         // Calculate consumption and save
         usageService.saveUsage(usage);
