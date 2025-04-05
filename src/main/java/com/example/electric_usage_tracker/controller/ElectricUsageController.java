@@ -1,73 +1,87 @@
-package com.example.electric_usage_tracker.controller;
+    package com.example.electric_usage_tracker.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+    import com.example.electric_usage_tracker.model.ApplianceUsage;
+    import com.example.electric_usage_tracker.model.CustomUserDetails;
+    import com.example.electric_usage_tracker.model.User;
+    import com.example.electric_usage_tracker.service.ApplianceService;
+    import com.example.electric_usage_tracker.service.UsageService;
+    import org.springframework.security.core.annotation.AuthenticationPrincipal;
+    import org.springframework.stereotype.Controller;
+    import org.springframework.ui.Model;
+    import org.springframework.web.bind.annotation.*;
 
-import com.example.electric_usage_tracker.model.ApplianceUsage;
-import com.example.electric_usage_tracker.service.ApplianceService;
-import com.example.electric_usage_tracker.service.UsageService;
+    import java.util.List;
 
-@Controller
-public class ElectricUsageController {
-    
-    @Autowired
-    private UsageService usageService;
-    
-    @Autowired
-    private ApplianceService applianceService;
-    
-    @GetMapping("/")
-    public String home(Model model) {
-        model.addAttribute("usage", new ApplianceUsage());
-        model.addAttribute("appliances", applianceService.getAllAppliances());
-        model.addAttribute("usageHistory", usageService.getAllUsages());
-        model.addAttribute("totalEnergy", usageService.getTotalEnergy());
-        model.addAttribute("totalCost", usageService.getTotalCost());
-        model.addAttribute("recordCount", usageService.getAllUsages().size());
-        return "index";
-    }
-    
+    @Controller
+    public class ElectricUsageController {
+
+        private final UsageService usageService;
+        private final ApplianceService applianceService;
+
+        public ElectricUsageController(UsageService usageService, ApplianceService applianceService) {
+            this.usageService = usageService;
+            this.applianceService = applianceService;
+        }
+
+        @GetMapping("/")
+        public String home(Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
+            if (userDetails != null) {
+                // Determine display name: use name if available, else fall back to username (email)
+                String displayName = userDetails.getName() != null && !userDetails.getName().isEmpty() 
+                    ? userDetails.getName() 
+                    : userDetails.getUsername();
+                model.addAttribute("displayName", displayName);
+            
+                User user = userDetails.getUser();
+                model.addAttribute("usage", new ApplianceUsage());
+                model.addAttribute("appliances", applianceService.getAllAppliances());
+                model.addAttribute("usageHistory", usageService.getAllUsages(user));
+                model.addAttribute("totalEnergy", usageService.getTotalEnergy(user));
+                model.addAttribute("totalCost", usageService.getTotalCost(user));
+                model.addAttribute("recordCount", usageService.getAllUsages(user).size());
+            }
+            return "index";
+        }
+
     @PostMapping("/calculate")
-    public String calculateUsage(@ModelAttribute ApplianceUsage usage, 
+    public String calculateUsage(@ModelAttribute ApplianceUsage usage,
                                 @RequestParam(required = false) String selectedAppliance,
                                 @RequestParam(required = false) String customAppliance,
-                                @RequestParam String timeUnit) {
-        
-        // Set appliance name based on form inputs
+                                @RequestParam String timeUnit,
+                                @AuthenticationPrincipal CustomUserDetails userDetails) {
+        User user = userDetails.getUser();
         if ("custom".equals(selectedAppliance)) {
             usage.setApplianceName(customAppliance);
         } else if (selectedAppliance != null && !selectedAppliance.isEmpty()) {
             usage.setApplianceName(selectedAppliance);
-            // If a predefined appliance was selected, set its standard wattage
             var appliance = applianceService.getApplianceByName(selectedAppliance);
             if (appliance != null) {
                 usage.setWattage(appliance.getWattage());
             }
         }
-        
-        // Set the time unit
         usage.setTimeUnit(timeUnit);
-        
-        // Calculate consumption and save
+        usage.setUser(user);
         usageService.saveUsage(usage);
         return "redirect:/?view=results";
     }
-    
-    @GetMapping("/delete/{id}")
-    public String deleteUsage(@PathVariable Long id) {
-        usageService.deleteUsage(id);
+
+    @PostMapping("/delete/{id}")
+    public String deleteUsage(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        User user = userDetails.getUser();
+        ApplianceUsage usage = usageService.getUsageById(id);
+        if (usage != null && usage.getUser().getId().equals(user.getId())) {
+            usageService.deleteUsage(id);
+        }
         return "redirect:/?view=history";
     }
-    
-    @GetMapping("/delete-all")
-    public String deleteAllUsages() {
-        usageService.deleteAllUsages();
+
+    @PostMapping("/delete-all")
+    public String deleteAllUsages(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        User user = userDetails.getUser();
+        List<ApplianceUsage> usages = usageService.getAllUsages(user);
+        for (ApplianceUsage usage : usages) {
+            usageService.deleteUsage(usage.getId());
+        }
         return "redirect:/?view=history";
     }
 }
